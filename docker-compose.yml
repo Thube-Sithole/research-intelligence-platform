@@ -1,0 +1,43 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-rip}
+      POSTGRES_USER: ${POSTGRES_USER:-rip}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-local-only}
+    ports: ["5432:5432"]
+    volumes: ["postgres_data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-rip} -d ${POSTGRES_DB:-rip}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    volumes: ["redis_data:/data"]
+
+  api:
+    build: ./backend
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-rip}:${POSTGRES_PASSWORD:-change-me-local-only}@db:5432/${POSTGRES_DB:-rip}
+      REDIS_URL: redis://redis:6379/0
+    ports: ["8000:8000"]
+    depends_on:
+      db: {condition: service_healthy}
+      redis: {condition: service_started}
+    volumes: ["./backend:/app"]
+
+  frontend:
+    build: ./frontend
+    environment:
+      API_PROXY_TARGET: http://api:8000
+    ports: ["5173:5173"]
+    depends_on: [api]
+    volumes: ["./frontend:/app", "/app/node_modules"]
+
+volumes:
+  postgres_data:
+  redis_data:
