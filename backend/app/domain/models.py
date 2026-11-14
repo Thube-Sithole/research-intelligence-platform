@@ -186,7 +186,6 @@ class EvidenceLocator(DomainModel):
 
     # The claim and source this location belongs to
     claim_id: UUID
-    source_id: UUID
 
     locator_type: LocatorType
 

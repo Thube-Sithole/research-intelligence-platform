@@ -242,11 +242,9 @@ def test_evidence_claim_rejects_unexpected_fields():
         )
 
 def test_evidence_locator_creation():
-    source_id = uuid4()
     claim_id = uuid4()
 
     locator = EvidenceLocator(
-        source_id=source_id,
         claim_id=claim_id,
         locator_type=LocatorType.PARAGRAPH,
         page_start=8,
@@ -254,8 +252,7 @@ def test_evidence_locator_creation():
         paragraph=2,
         content_hash_sha256="a" * 64,
     )
-
-    assert locator.source_id == source_id
+    
     assert locator.claim_id == claim_id
     assert locator.page_start == 8
     assert locator.section == "3.2 Results and Discussion"
@@ -264,7 +261,6 @@ def test_evidence_locator_creation():
 
 def test_evidence_locator_supports_html_locations():
     locator = EvidenceLocator(
-        source_id=uuid4(),
         claim_id=uuid4(),
         locator_type=LocatorType.HTML_ANCHOR,
         html_anchor="results-section",
@@ -276,7 +272,6 @@ def test_evidence_locator_supports_html_locations():
 
 def test_evidence_locator_supports_dataset_locations():
     locator = EvidenceLocator(
-        source_id=uuid4(),
         claim_id=uuid4(),
         locator_type=LocatorType.DATASET_LOCATION,
         dataset_sheet="Experimental Results",
@@ -290,18 +285,15 @@ def test_evidence_locator_supports_dataset_locations():
 
 
 def test_evidence_locator_generates_unique_ids():
-    source_id = uuid4()
     claim_id = uuid4()
 
     locator_one = EvidenceLocator(
-        source_id=source_id,
         claim_id=claim_id,
         locator_type=LocatorType.PAGE,
         page_start=8,
     )
 
     locator_two = EvidenceLocator(
-        source_id=source_id,
         claim_id=claim_id,
         locator_type=LocatorType.PAGE,
         page_start=9,
